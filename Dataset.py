@@ -47,7 +47,7 @@ class CustomImageDataset(Dataset):
     def __getitem__(self, idx):
         img_path = self.image_paths[idx]
         label = self.labels[idx]
-
+        
         target = torch.zeros(self.nr_classes)
         target[label] = 1
 

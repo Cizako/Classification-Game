@@ -6,9 +6,9 @@ import os
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
-from main import classes
 from models.GradCam import GradCAM, generate_and_save_grad_cams, save_grad_cam_heatmap
 from translate import translate
+from livelossplot import PlotLosses
 
 
 
@@ -16,6 +16,7 @@ from translate import translate
 
 
 def test(model, testloader, device, model_name, unique_id):
+    liveloss = PlotLosses()
     model.to(device)
     model.eval()
     correct = 0

@@ -58,18 +58,19 @@ class CustomImageDataset(Dataset):
         Args:
         - nr_images (int): Number of images to visualize.
         """
-        # Randomly select 'nr_images' indices
-        
         images = []
         labels = []
 
-        # Load images and labels
+        # Randomly select 'nr_images' indices
         indices = random.sample(range(len(self.image_paths)), nr_images)
 
         for idx in indices:
-            image, label = self.__getitem__(idx)
+            image, target = self.__getitem__(idx)
             images.append(image)
-            labels.append(label)
+            
+            # Convert the one-hot target tensor back to class index
+            label_idx = torch.argmax(target).item()
+            labels.append(label_idx)
 
         # Create a grid of images
         grid_img = torchvision.utils.make_grid(images, nrow=nr_images, normalize=True)
@@ -81,7 +82,6 @@ class CustomImageDataset(Dataset):
 
         # Add titles below the images showing the true labels
         label_names = [list(self.class_to_idx.keys())[list(self.class_to_idx.values()).index(lbl)] for lbl in labels]
-
         plt.title(" | ".join(label_names))  # Titles are class names for the images
         
         plt.show()
@@ -98,9 +98,12 @@ class CustomImageDataset(Dataset):
             class_images = [i for i, label in enumerate(self.labels) if label == class_idx]
             if class_images:
                 random_idx = random.choice(class_images)
-                image, label = self.__getitem__(random_idx)
+                image, target = self.__getitem__(random_idx)
                 images.append(image)
-                labels.append(label)
+
+                # Convert the one-hot target tensor back to class index
+                label_idx = torch.argmax(target).item()
+                labels.append(label_idx)
 
         # Create a grid of images
         grid_img = torchvision.utils.make_grid(images, nrow=len(images), normalize=True)
@@ -112,7 +115,6 @@ class CustomImageDataset(Dataset):
 
         # Add titles below the images showing the class names
         label_names = [list(self.class_to_idx.keys())[list(self.class_to_idx.values()).index(lbl)] for lbl in labels]
-
         plt.title(" | ".join(label_names))  # Titles are class names for the images
         
         plt.show()

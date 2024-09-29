@@ -98,11 +98,11 @@ def train(model, trainloader,
             
             correct += (predicted_indices == gt).sum().item()
 
-            print('Loss: {:.8f} | Acc: {:.2f}% ({}/{})'.format((train_loss/(batch_idx+1)), 100.*correct/total, correct, total))
+            #print('Loss: {:.8f} | Acc: {:.2f}% ({}/{})'.format((train_loss/(batch_idx+1)), 100.*correct/total, correct, total))
 
         
                 
-
+        print(train_loss/(batch_idx+1), "Epoch: ", epoch)
         train_loss_log.append((train_loss/(batch_idx+1)))
         train_acc_log.append(100.*correct/total)
 
@@ -112,62 +112,64 @@ def train(model, trainloader,
         val_loss = 0
         val_total = 0
 
-        for val_batch_idx, (val_inputs, val_targets) in enumerate(valloader):
+        val = False
+        if val:
+            for val_batch_idx, (val_inputs, val_targets) in enumerate(valloader):
 
-             
-            val_inputs, val_targets = val_inputs.to(device), val_targets.to(device)
+                
+                val_inputs, val_targets = val_inputs.to(device), val_targets.to(device)
 
-            val_inputs, val_targets = torch.tensor(val_inputs, requires_grad=True), torch.tensor(val_targets).long()
+                val_inputs, val_targets = torch.tensor(val_inputs, requires_grad=True), torch.tensor(val_targets).long()
 
-            val_outputs = model(val_inputs)
+                val_outputs = model(val_inputs)
 
-            vloss = objective(val_outputs, val_targets)
-            val_loss += vloss.item()
+                vloss = objective(val_outputs, val_targets)
+                val_loss += vloss.item()
 
-            _, val_predicted = torch.max(val_outputs, 1)
+                _, val_predicted = torch.max(val_outputs, 1)
 
-            val_total += val_targets.size(0)
-            val_correct += (val_predicted == val_targets).sum().item()
+                val_total += val_targets.size(0)
+                val_correct += (val_predicted == val_targets).sum().item()
 
-            print('Val_Loss: {:.8f} | Val_Acc: {:.2f}% ({}/{})'.format((val_loss/(val_batch_idx+1)), 100.*val_correct/val_total, val_correct, val_total))
-
-
-        val_loss_log.append(val_loss/(val_batch_idx+1))
-        val_acc_log.append(100.*val_correct/val_total)
-
-        if epoch % 5 == 0:
-            # Save a checkpoint when the epoch finishes
-            state = {
-                'epoch': epoch,
-                'net': model.state_dict(),
-                'optimizer' : optimizer.state_dict(),
-            }
-            save_dir = f'./checkpoints/{model_name}_{unique_id}'
-            if not os.path.isdir(save_dir):
-                os.mkdir(save_dir)
-            file_path = f'{save_dir}/checkpoint_{epoch}.ckpt'
-            torch.save(state, file_path)
-
-        # Step the scheduler
-        if scheduler is not None:
-            scheduler.step()
-            print(optimizer.defaults["lr"])
-    # Save the final model    
-    torch.save(model.state_dict(), f'./saved_models/{model_name}_{unique_id}_final')
-    print('Training Finished!')
+                print('Val_Loss: {:.8f} | Val_Acc: {:.2f}% ({}/{})'.format((val_loss/(val_batch_idx+1)), 100.*val_correct/val_total, val_correct, val_total))
 
 
-    #save loss to csv
-    csv_file = f"{save_dir}/training_metrics.csv"
-    with open(csv_file, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        
-        # Write header
-        writer.writerow(["Train_Loss", "Train_Accuracy", "Val_Loss", "Val_Accuracy"])
-        
-        # Write the loss and accuracy values
-        for t_loss, t_acc, v_loss, v_acc in zip(train_loss_log, train_acc_log, val_loss_log, val_acc_log):
-            writer.writerow([t_loss, t_acc, v_loss, v_acc])
+            val_loss_log.append(val_loss/(val_batch_idx+1))
+            val_acc_log.append(100.*val_correct/val_total)
+
+            if epoch % 5 == 0:
+                # Save a checkpoint when the epoch finishes
+                state = {
+                    'epoch': epoch,
+                    'net': model.state_dict(),
+                    'optimizer' : optimizer.state_dict(),
+                }
+                save_dir = f'./checkpoints/{model_name}_{unique_id}'
+                if not os.path.isdir(save_dir):
+                    os.mkdir(save_dir)
+                file_path = f'{save_dir}/checkpoint_{epoch}.ckpt'
+                torch.save(state, file_path)
+
+            # Step the scheduler
+            if scheduler is not None:
+                scheduler.step()
+                print(optimizer.defaults["lr"])
+        # Save the final model    
+            torch.save(model.state_dict(), f'./saved_models/{model_name}_{unique_id}_final')
+            print('Training Finished!')
+
+
+        #save loss to csv
+            csv_file = f"{save_dir}/training_metrics.csv"
+            with open(csv_file, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                
+                # Write header
+                writer.writerow(["Train_Loss", "Train_Accuracy", "Val_Loss", "Val_Accuracy"])
+                
+                # Write the loss and accuracy values
+                for t_loss, t_acc, v_loss, v_acc in zip(train_loss_log, train_acc_log, val_loss_log, val_acc_log):
+                    writer.writerow([t_loss, t_acc, v_loss, v_acc])
 
 
 

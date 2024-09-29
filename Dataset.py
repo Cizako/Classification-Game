@@ -1,15 +1,14 @@
 import os
 from PIL import Image
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torchvision import transforms
-import torchvision
-import matplotlib.pyplot as plt
 import random
-from translate import translate as translation
 import torch
+import matplotlib.pyplot as plt
+import torchvision
 
 class CustomImageDataset(Dataset):
-    def __init__(self, root_dir, transform=None, amount_of_classes = 2):
+    def __init__(self, root_dir, transform=None, amount_of_classes=2, data_percentage=1.0):
         self.root_dir = root_dir
         self.transform = transform
         self.image_paths = []
@@ -31,6 +30,16 @@ class CustomImageDataset(Dataset):
                     if img_path.endswith(".jpg") or img_path.endswith(".jpeg"):  # Handle only JPEGs
                         self.image_paths.append(img_path)
                         self.labels.append(class_idx)
+
+        # Use only a portion of the dataset based on data_percentage
+        total_images = len(self.image_paths)
+        selected_size = int(total_images * data_percentage)
+        
+        # Randomly select a subset of the data
+        if data_percentage < 1.0:
+            selected_indices = random.sample(range(total_images), selected_size)
+            self.image_paths = [self.image_paths[i] for i in selected_indices]
+            self.labels = [self.labels[i] for i in selected_indices]
 
     def __len__(self):
         return len(self.image_paths)
@@ -58,19 +67,18 @@ class CustomImageDataset(Dataset):
         Args:
         - nr_images (int): Number of images to visualize.
         """
+        # Randomly select 'nr_images' indices
+        
         images = []
         labels = []
 
-        # Randomly select 'nr_images' indices
+        # Load images and labels
         indices = random.sample(range(len(self.image_paths)), nr_images)
 
         for idx in indices:
-            image, target = self.__getitem__(idx)
+            image, label = self.__getitem__(idx)
             images.append(image)
-            
-            # Convert the one-hot target tensor back to class index
-            label_idx = torch.argmax(target).item()
-            labels.append(label_idx)
+            labels.append(label)
 
         # Create a grid of images
         grid_img = torchvision.utils.make_grid(images, nrow=nr_images, normalize=True)
@@ -82,6 +90,7 @@ class CustomImageDataset(Dataset):
 
         # Add titles below the images showing the true labels
         label_names = [list(self.class_to_idx.keys())[list(self.class_to_idx.values()).index(lbl)] for lbl in labels]
+
         plt.title(" | ".join(label_names))  # Titles are class names for the images
         
         plt.show()
@@ -98,12 +107,9 @@ class CustomImageDataset(Dataset):
             class_images = [i for i, label in enumerate(self.labels) if label == class_idx]
             if class_images:
                 random_idx = random.choice(class_images)
-                image, target = self.__getitem__(random_idx)
+                image, label = self.__getitem__(random_idx)
                 images.append(image)
-
-                # Convert the one-hot target tensor back to class index
-                label_idx = torch.argmax(target).item()
-                labels.append(label_idx)
+                labels.append(label)
 
         # Create a grid of images
         grid_img = torchvision.utils.make_grid(images, nrow=len(images), normalize=True)
@@ -115,6 +121,7 @@ class CustomImageDataset(Dataset):
 
         # Add titles below the images showing the class names
         label_names = [list(self.class_to_idx.keys())[list(self.class_to_idx.values()).index(lbl)] for lbl in labels]
+
         plt.title(" | ".join(label_names))  # Titles are class names for the images
         
         plt.show()
@@ -123,12 +130,13 @@ class CustomImageDataset(Dataset):
 if __name__ == "__main__":
 
     transform = transforms.Compose([
-    transforms.Resize((500, 500)), 
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
+        transforms.Resize((500, 500)), 
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
 
-    data = CustomImageDataset('data/raw-img', transform=transform, amount_of_classes=5 )
+    # Example: Using 50% of the data and limiting to 5 classes
+    data = CustomImageDataset('data/raw-img', transform=transform, amount_of_classes=5, data_percentage=0.5)
 
     data.visualize(10)
 

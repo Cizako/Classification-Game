@@ -14,13 +14,11 @@ class CustomImageDataset(Dataset):
         self.image_paths = []
         self.labels = []
         self.class_to_idx = {}
-        self.nr_classes = 0
-
-        # Traverse the directory structure to collect image paths and labels
+        self.nr_classes  = amount_of_classes
+        # Traverse the directory to collect image paths and labels
         for class_idx, class_name in enumerate(os.listdir(root_dir)):
-            if self.nr_classes >= amount_of_classes:
+            if len(self.class_to_idx) >= amount_of_classes:
                 break
-            self.nr_classes += 1
             
             class_dir = os.path.join(root_dir, class_name)
             if os.path.isdir(class_dir):

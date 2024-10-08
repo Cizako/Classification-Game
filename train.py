@@ -43,13 +43,17 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
             optimizer.step()
 
             running_loss += loss.item()
+    
             _, predicted_indices = torch.max(outputs.data, 1)
+            
+            targets = targets.argmax(dim=1)
             total += targets.size(0)
             correct += (predicted_indices == targets).sum().item()
 
+
         # Training accuracy and loss
         train_loss = running_loss / len(trainloader)
-        train_acc = 100. * correct / total
+        train_acc = 100. * (correct / total)
 
         train_loss_log.append(train_loss)
         train_acc_log.append(train_acc)
@@ -68,11 +72,12 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
                 val_loss += objective(val_outputs, val_targets).item()
 
                 _, val_predicted = torch.max(val_outputs, 1)
+                val_targets = val_targets.argmax(dim=1)
                 val_total += val_targets.size(0)
                 val_correct += (val_predicted == val_targets).sum().item()
 
         val_loss = val_loss / len(valloader)
-        val_acc = 100. * val_correct / val_total
+        val_acc = 100. * (val_correct / val_total)
 
         val_loss_log.append(val_loss)
         val_acc_log.append(val_acc)
@@ -87,20 +92,8 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
         liveloss.update(logs)
         liveloss.send()
 
-        # Optionally, save model checkpoints and metrics to CSV
-        """if epoch % 5 == 0:
-            save_dir = f'./checkpoints/{model_name}_{unique_id}'
-            if not os.path.isdir(save_dir):
-                os.mkdir(save_dir)
-            state = {'epoch': epoch, 'net': model.state_dict(), 'optimizer': optimizer.state_dict()}
-            torch.save(state, f'{save_dir}/checkpoint_{epoch}.ckpt')
-
-            # Step the scheduler if provided
-            if scheduler is not None:
-                scheduler.step()
-                print(optimizer.defaults["lr"])"""
 
     # Save final model
-    torch.save(model.state_dict(), f'./saved_models/{model_name}_{unique_id}_final')
+    
     print('Training Finished!')
     return model, train_loss_log, train_acc_log

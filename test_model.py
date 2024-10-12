@@ -54,14 +54,15 @@ def test(model, testloader, device, model_name, unique_id):
         with torch.no_grad():
             outputs = model(inputs)
 
-        _, predicted = torch.max(outputs.data, 1)
-        gt = torch.argmax(targets.data, 1)
+        pred = torch.sigmoid(outputs)
+        gt = torch.argmax(targets, 1)
+        pred = torch.argmax(pred, 1)
 
         total += gt.size(0)
-        correct += (predicted == gt).sum().item()
+        correct += (pred == gt).sum().item()
 
         all_labels.extend(gt.cpu().numpy())
-        all_preds.extend(predicted.cpu().numpy())
+        all_preds.extend(pred.cpu().numpy())
 
     # Compute confusion matrix
 

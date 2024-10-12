@@ -7,6 +7,7 @@ from torch.optim.lr_scheduler import StepLR
 import numpy as np
 import matplotlib.pyplot as plt
 from livelossplot import PlotLosses
+import torch.nn.functional as F
 """from live_plot import LivePlot
 
 # Initialize the LivePlot class
@@ -34,9 +35,10 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
 
         for batch_idx, (inputs, targets) in enumerate(trainloader):
             inputs, targets = inputs.to(device), targets.to(device)
-
+            #make a one hot vector
             optimizer.zero_grad()
             outputs = model(inputs)
+            outputs = F.softmax(outputs, dim=1)
             loss = objective(outputs, targets)
 
             loss.backward()

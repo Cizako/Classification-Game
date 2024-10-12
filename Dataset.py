@@ -13,6 +13,7 @@ class CustomImageDataset(Dataset):
         self.transform = transform
         self.image_paths = []
         self.labels = []
+        self.class_names = []
         self.class_to_idx = {}
         self.nr_classes  = amount_of_classes
         # Traverse the directory to collect image paths and labels
@@ -28,7 +29,9 @@ class CustomImageDataset(Dataset):
                     if img_path.endswith(".jpg") or img_path.endswith(".jpeg"):  # Handle only JPEGs
                         self.image_paths.append(img_path)
                         self.labels.append(class_idx)
+            self.class_names.append(class_name)
 
+        print(self.class_names)
         # Use only a portion of the dataset based on data_percentage
         total_images = len(self.image_paths)
         selected_size = int(total_images * data_percentage)

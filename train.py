@@ -38,19 +38,23 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
             #make a one hot vector
             optimizer.zero_grad()
             outputs = model(inputs)
-            outputs = F.softmax(outputs, dim=1)
+
+            outputs = torch.sigmoid(outputs)  # Apply sigmoid activation
+            
+
             loss = objective(outputs, targets)
 
             loss.backward()
             optimizer.step()
 
             running_loss += loss.item()
-    
-            _, predicted_indices = torch.max(outputs.data, 1)
+
+            
+            preds  = outputs.argmax(dim=1)
             
             targets = targets.argmax(dim=1)
             total += targets.size(0)
-            correct += (predicted_indices == targets).sum().item()
+            correct += (preds == targets).sum().item()
 
 
         # Training accuracy and loss
@@ -71,12 +75,13 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
                 val_inputs, val_targets = val_inputs.to(device), val_targets.to(device)
 
                 val_outputs = model(val_inputs)
-                val_loss += objective(val_outputs, val_targets).item()
+                val_outputs = torch.sigmoid(val_outputs)  # Apply sigmoid activation
 
-                _, val_predicted = torch.max(val_outputs, 1)
+                val_loss += objective(val_outputs, val_targets).item()
+                preds = val_outputs.argmax(dim=1)
                 val_targets = val_targets.argmax(dim=1)
                 val_total += val_targets.size(0)
-                val_correct += (val_predicted == val_targets).sum().item()
+                val_correct += (preds == val_targets).sum().item()
 
         val_loss = val_loss / len(valloader)
         val_acc = 100. * (val_correct / val_total)

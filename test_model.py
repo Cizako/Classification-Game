@@ -19,7 +19,7 @@ def plot_cm(all_labels, all_preds, classes):
     plt.figure(figsize=(10, 8))
     sns.heatmap(cm, annot=True, fmt=".2f", cmap="Blues",
                 xticklabels=classes, yticklabels=classes)
-    plt.title("Normalized Confusion Matrix")
+    plt.title("Confusion Matrix")
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
     plt.show()
@@ -67,7 +67,8 @@ def test(model, testloader, device, model_name, unique_id):
     # Compute confusion matrix
 
 
-    class_names = testloader.dataset.dataset.class_names
+    class_names = testloader.dataset.class_names
+    print(class_names)
     #translations = [translate[cl] for cl in class_names]
 
     

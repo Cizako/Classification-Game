@@ -8,6 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from livelossplot import PlotLosses
 import torch.nn.functional as F
+import pandas as pd
+from tabulate import tabulate
+
 """from live_plot import LivePlot
 
 # Initialize the LivePlot class
@@ -39,8 +42,12 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
             optimizer.zero_grad()
             outputs = model(inputs)
 
-            outputs = torch.sigmoid(outputs)  # Apply sigmoid activation
+
+
+            #outputs = torch.sigmoid(outputs)  # Apply sigmoid activation
             
+            
+
 
             loss = objective(outputs, targets)
 
@@ -49,6 +56,7 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
 
             running_loss += loss.item()
 
+            outputs = F.softmax(outputs, dim=1)
             
             preds  = outputs.argmax(dim=1)
             
@@ -103,4 +111,92 @@ def train(model, trainloader, valloader, optimizer, objective, device, start_epo
     # Save final model
     
     print('Training Finished!')
-    return model, train_loss_log, train_acc_log
+    return model, train_loss_log, train_acc_log, val_loss_log, val_acc_log
+
+
+def training_info(model_info):
+    # Add training and validation info to the model info dictionary
+
+
+    # Create a DataFrame from the dictionary
+    df = pd.DataFrame([model_info])  # Use list of dictionaries to create a single-row DataFrame
+    filename = f'{model_info["model_name"]}_{model_info['ID']}.csv'
+
+    if not os.path.exists('training_metrics'):
+        os.makedirs('training_metrics')
+
+    filename = os.path.join('training_metrics', filename)
+
+    # Append to a CSV file (or create one if it doesn't exist)
+    df.to_csv(filename, mode='a', index=False, header=not pd.io.common.file_exists(filename))
+
+
+def plot_experiments(data_dir):
+    # Initialize lists for plotting
+    data = load_csv_files(data_dir)
+    plot_metrics(data)
+    display_parameters(data)
+
+
+def load_csv_files(directory):
+    """Load all CSV files from a specified directory."""
+    dataframes = {}
+    for filename in os.listdir(directory):
+        if filename.endswith('.csv'):
+            file_path = os.path.join(directory, filename)
+            df = pd.read_csv(file_path)
+            model_name = os.path.splitext(filename)[0]  # Use filename as model name
+            dataframes[model_name] = df
+    return dataframes
+
+def plot_metrics(dataframes):
+    """Plot training and validation metrics for each model."""
+    plt.figure(figsize=(14, 7))
+
+    # Plot loss
+    plt.subplot(1, 2, 1)
+    for model_name, df in dataframes.items():
+        epochs = df['epochs'].iloc[0]
+
+        t_loss = eval(df['t_loss'].iloc[0]) if isinstance(df['t_loss'].iloc[0], str) else df['t_loss'].iloc[0]
+        v_loss = eval(df['v_loss'].iloc[0]) if isinstance(df['v_loss'].iloc[0], str) else df['v_loss'].iloc[0]
+        plt.plot(range(0, epochs+1), t_loss, label=f'Train loss ({model_name})', linestyle='--')
+        plt.plot(range(0,epochs+1), v_loss, label=f'Val loss ({model_name})')
+    plt.title('Loss over Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.grid()
+
+    # Plot accuracy
+    plt.subplot(1, 2, 2)
+    for model_name, df in dataframes.items():
+        epochs = df['epochs'].iloc[0]
+
+        t_acc = eval(df['t_acc'].iloc[0]) if isinstance(df['t_acc'].iloc[0], str) else df['t_acc'].iloc[0]
+        v_acc = eval(df['v_acc'].iloc[0]) if isinstance(df['v_acc'].iloc[0], str) else df['v_acc'].iloc[0]
+        plt.plot(range(0, epochs+1), t_acc, label=f'Train acc ({model_name})', linestyle='--')
+        plt.plot(range(0, epochs+1), v_acc, label=f'Val acc ({model_name})')
+    
+    plt.title('Accuracy over Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.grid()
+
+    plt.tight_layout()
+    plt.show()
+
+def display_parameters(dataframes):
+    """Display model parameters in a table format, excluding metrics."""
+    param_list = []
+    for model_name, df in dataframes.items():
+        # Extract the first row and exclude specific columns
+        params = df.iloc[0].drop(['t_loss', 'v_loss', 't_acc', 'v_acc']).to_dict()  # Exclude metrics
+        params['Model Name'] = model_name
+        param_list.append(params)
+
+    # Convert to DataFrame for tabulate
+    param_df = pd.DataFrame(param_list)
+    print(tabulate(param_df, headers='keys', tablefmt='psql', showindex=False))
+

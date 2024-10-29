@@ -34,9 +34,56 @@
 <details>
 <summary><strong> Implement Augmentations </strong> </summary>
 
-In order to implement augmentatio
 
-### Whirl and swirl
+  In order to implement augmentations for the data one needs to change the cell called "DATASET"  
+  
+  ```python
+transform = transforms.Compose([ 
+      #Put augmentations here preferably
+      transforms.ToTensor(), 
+      transforms.Resize((IMAGE_SIZE[0], IMAGE_SIZE[1]))
+      ])
+  ```
+
+### Whirl and Swirl
+
+```python
+transforms.RandomRotation(degrees=15),  # Rotate the image randomly within a 15-degree range
+```
+
+### Flip trick
+
+```python
+transforms.RandomHorizontalFlip(p=0.2),  # Randomly flip the image horizontally with 20% probability
+transforms.RandomVerticalFlip(p=0.2),  # Randomly flip the image vertically with 20% probability
+```
+
+### Need for shift: Tokyo data drift
+
+```python
+transforms.RandomHorizontalFlip(p=0.2),  # Randomly flip the image horizontally with 20% probability
+transforms.RandomVerticalFlip(p=0.2),  # Randomly flip the image vertically with 20% probability
+```
+
+### Foggy Lens  
+
+```python
+transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),  # Apply Gaussian blur with a random kernel size
+
+```
+
+### Missing Pieces (Cutout Chaos) 
+
+```python
+transforms.RandomErasing(p=0.5, scale=(0.02, 0.2), ratio=(0.3, 3.3)),  # Randomly erases parts of the image
+```
+  </details>     </details>
+
+
+</details>
+
+
+
 
 </details>
 
@@ -254,17 +301,52 @@ Remeber that you still want high recall so you still want to predict some of the
 
 
 
+<details>
+<summary><strong> Implement Drop shield </strong> </summary>
+
+
+
+Dropout is a regularization technique that helps prevent overfitting by randomly "dropping out" a proportion of neurons during training. These changes are supposed to be implemented in the cellblock for the model.
+
+#### 1. Add a dropout_rate parameter to __init__ (default 0.5)
+```python
+def __init__(self, num_classes=10, input_size=(500, 500), dropout_rate=0.5):
+```
+#### 2. Add two types of dropout layers in the init method
+
+```python
+# Dropout layers
+        self.dropout1 = nn.Dropout2d(p=dropout_rate)  # Spatial dropout for convolutional layers
+        self.dropout2 = nn.Dropout(p=dropout_rate)    # Regular dropout for fully connected layers
+```
+#### 3. Apply dropout after activation functions but before pooling layers in the forwards method
+
+One convolutional block should then look like this
+```python
+# First conv -> ReLU -> Dropout -> Max Pooling
+        x = F.relu(self.conv1(x))
+        x = self.dropout1(x)  # Apply spatial dropout
+        x = F.max_pool2d(x, kernel_size=2, stride=2)
+```
+#### 4. Add dropout before the final prediction layer
+
+```python
+# Fully connected layer -> ReLU -> Dropout
+        x = F.relu(self.fc1(x))
+        x = self.dropout2(x)  # Apply regular dropout before final layer
+```
+
+#### 5. Use dropout
+To use this model, you can instantiate it with different dropout rates:
+```python
+# Default dropout rate (0.5)
+model = ClassificationModel(num_classes=10, input_size=(500, 500))
+
+# Custom dropout rate
+model = ClassificationModel(num_classes=10, input_size=(500, 500), dropout_rate=0.3)
+```
+
 </details>
 
-<details>
-<summary><strong> 2. **Alternative Method:** </strong> </summary>
-hej
-If you prefer to create your own environment:
-```bash
-pip install PyQt5 qdarkstyle
-```
-Then start the GUI, create an environment with all recommended packages, and export it. Activate the new environment and restart the application:
-```bash
-conda activate <your_env>
-```
+
 </details>

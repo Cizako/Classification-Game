@@ -1,41 +1,35 @@
 // Computational graph for the feedforward sweep
 digraph ClassificationModel {
-	graph [label=<<B>ClassificationModel</B><br align='left'/>18 tensors total (1.8 MB)<br align='left'/>209898 params total (821.2 KB)<br align='left'/>> labeljust=left labelloc=t ordering=out rankdir=BT]
+	graph [label=<<B>ClassificationModel</B><br align='left'/>15 tensors total (2.5 MB)<br align='left'/>1102986 params total (4.2 MB)<br align='left'/>> labeljust=left labelloc=t ordering=out rankdir=BT]
 	node [ordering=out]
 	input_1 [label=<<b>input_1</b><br/>1x3x64x64 (48.2 KB)<br/>@input.x> color=black fillcolor="#98FB98" fontcolor=black ordering=out shape=oval style="filled,solid"]
 	input_1 -> conv2d_1_1 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	conv2d_1_1 [label=<<b>conv2d_1_1</b><br/>1x16x64x64 (256.2 KB)<br/>params: 16x3x5x5, x16<br/>@conv1> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
+	conv2d_1_1 [label=<<b>conv2d_1_1</b><br/>1x32x64x64 (512.2 KB)<br/>params: 32x3x5x5, x32<br/>@conv1> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
 	conv2d_1_1 -> relu_1_2 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	relu_1_2 [label=<<b>relu_1_2</b><br/>1x16x64x64 (256.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
+	relu_1_2 [label=<<b>relu_1_2</b><br/>1x32x64x64 (512.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
 	relu_1_2 -> featuredropout_1_3 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	featuredropout_1_3 [label=<<b>featuredropout_1_3</b><br/>1x16x64x64 (256.2 KB)<br/>@dropout1> color=black fillcolor=white fontcolor=black ordering=out shape=box style="filled,solid"]
+	featuredropout_1_3 [label=<<b>featuredropout_1_3</b><br/>1x32x64x64 (512.2 KB)<br/>@dropout1> color=black fillcolor=white fontcolor=black ordering=out shape=box style="filled,solid"]
 	featuredropout_1_3 -> maxpool2d_1_4 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	maxpool2d_1_4 [label=<<b>maxpool2d_1_4</b><br/>1x16x32x32 (64.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
+	maxpool2d_1_4 [label=<<b>maxpool2d_1_4</b><br/>1x32x32x32 (128.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
 	maxpool2d_1_4 -> conv2d_2_5 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	conv2d_2_5 [label=<<b>conv2d_2_5</b><br/>1x64x32x32 (256.2 KB)<br/>params: 64x16x5x5, x64<br/>@conv2> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
+	conv2d_2_5 [label=<<b>conv2d_2_5</b><br/>1x64x32x32 (256.2 KB)<br/>params: 64x32x5x5, x64<br/>@conv2> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
 	conv2d_2_5 -> relu_2_6 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
 	relu_2_6 [label=<<b>relu_2_6</b><br/>1x64x32x32 (256.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
 	relu_2_6 -> dropout_1_7 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
 	dropout_1_7 [label=<<b>dropout_1_7</b><br/>1x64x32x32 (256.2 KB)<br/>@dropout3> color=black fillcolor=white fontcolor=black ordering=out shape=box style="filled,solid"]
 	dropout_1_7 -> maxpool2d_2_8 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
 	maxpool2d_2_8 [label=<<b>maxpool2d_2_8</b><br/>1x64x16x16 (64.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
-	maxpool2d_2_8 -> conv2d_3_9 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	conv2d_3_9 [label=<<b>conv2d_3_9</b><br/>1x32x16x16 (32.2 KB)<br/>params: 32x64x5x5, x32<br/>@conv3> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
-	conv2d_3_9 -> relu_3_10 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	relu_3_10 [label=<<b>relu_3_10</b><br/>1x32x16x16 (32.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
-	relu_3_10 -> maxpool2d_3_11 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	maxpool2d_3_11 [label=<<b>maxpool2d_3_11</b><br/>1x32x8x8 (8.2 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
-	maxpool2d_3_11 -> view_1_12 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	view_1_12 [label=<<b>view_1_12</b><br/>1x2048 (8.1 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
-	view_1_12 -> linear_1_13 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	linear_1_13 [label=<<b>linear_1_13</b><br/>1x64 (384 B)<br/>params: 64x2048, x64<br/>@fc1> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
-	linear_1_13 -> relu_4_14 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	relu_4_14 [label=<<b>relu_4_14</b><br/>1x64 (384 B)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
-	relu_4_14 -> dropout_2_15 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	dropout_2_15 [label=<<b>dropout_2_15</b><br/>1x64 (384 B)<br/>@dropout2> color=black fillcolor=white fontcolor=black ordering=out shape=box style="filled,solid"]
-	dropout_2_15 -> linear_2_16 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
-	linear_2_16 [label=<<b>linear_2_16</b><br/>1x10 (168 B)<br/>params: 10x64, x10<br/>@prediction> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
-	linear_2_16 -> output_1 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
+	maxpool2d_2_8 -> view_1_9 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
+	view_1_9 [label=<<b>view_1_9</b><br/>1x16384 (64.1 KB)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
+	view_1_9 -> linear_1_10 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
+	linear_1_10 [label=<<b>linear_1_10</b><br/>1x64 (384 B)<br/>params: 64x16384, x64<br/>@fc1> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
+	linear_1_10 -> relu_3_11 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
+	relu_3_11 [label=<<b>relu_3_11</b><br/>1x64 (384 B)> color=black fillcolor=white fontcolor=black ordering=out shape=oval style="filled,solid"]
+	relu_3_11 -> dropout_2_12 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
+	dropout_2_12 [label=<<b>dropout_2_12</b><br/>1x64 (384 B)<br/>@dropout2> color=black fillcolor=white fontcolor=black ordering=out shape=box style="filled,solid"]
+	dropout_2_12 -> linear_2_13 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
+	linear_2_13 [label=<<b>linear_2_13</b><br/>1x10 (168 B)<br/>params: 10x64, x10<br/>@prediction> color=black fillcolor="#E6E6E6" fontcolor=black ordering=out shape=box style="filled,solid"]
+	linear_2_13 -> output_1 [arrowsize=.7 color=black fontcolor=black labelfontsize=8 style=solid]
 	output_1 [label=<<b>output_1</b><br/>1x10 (168 B)<br/>@output> color=black fillcolor="#ff9999" fontcolor=black ordering=out shape=oval style="filled,solid"]
 	{
 		rank=sink
@@ -52,9 +46,6 @@ digraph ClassificationModel {
 	}
 	subgraph cluster_dropout3_pass1 {
 		fillcolor=white label=<<B>@dropout3</B><br align='left'/>(Dropout)<br align='left'/>> labelloc=b penwidth=5.0 style="filled,dashed"
-	}
-	subgraph cluster_conv3_pass1 {
-		fillcolor=white label=<<B>@conv3</B><br align='left'/>(Conv2d)<br align='left'/>> labelloc=b penwidth=5.0 style="filled,dashed"
 	}
 	subgraph cluster_fc1_pass1 {
 		fillcolor=white label=<<B>@fc1</B><br align='left'/>(Linear)<br align='left'/>> labelloc=b penwidth=5.0 style="filled,dashed"

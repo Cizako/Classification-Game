@@ -54,7 +54,7 @@ def test(model, testloader, device, model_name, unique_id):
         with torch.no_grad():
             outputs = model(inputs)
 
-        pred = torch.sigmoid(outputs)
+        pred = torch.softmax(outputs, 1)
         gt = torch.argmax(targets, 1)
         pred = torch.argmax(pred, 1)
 
@@ -67,7 +67,7 @@ def test(model, testloader, device, model_name, unique_id):
     # Compute confusion matrix
 
 
-    class_names = testloader.dataset.class_names
+    class_names = testloader.dataset.dataset.class_names #maybe not write dataset twice
     print(class_names)
     #translations = [translate[cl] for cl in class_names]
 
